@@ -78,11 +78,8 @@ class DecisionTree:
             while isinstance(node, dict):
                 # Check if the feature at the split node is categorical
                 if node["feature_name"] in self.categorical_features:
-                    # One-hot encode the categorical feature
-                    feature_value = sample[self.feature_names.index(node["feature_name"])]
-                    encoded_feature = [1 if feature_value == value else 0 for value in self.feature_names]
-                    # Determine which branch to traverse for categorical feature
-                    if encoded_feature[self.feature_names.index(node["threshold"])] == 1:
+                    # Determine which branch to traverse based on the presence of the categorical value in the test data
+                    if sample[self.feature_names.index(node["feature_name"] + "_" + node["threshold"])] == 1:
                         node = node["left"]
                     else:
                         node = node["right"]
@@ -113,7 +110,8 @@ class DecisionTree:
         predicted_delay = round(
             single_prediction[0] if isinstance(single_prediction, np.ndarray) else single_prediction)
 
-        return predicted_delay, round(mse[0] if isinstance(mse, np.ndarray) else mse, 2)  # Round MSE to two decimal places
+        return predicted_delay, round(mse[0] if isinstance(mse, np.ndarray) else mse,
+                                      2)  # Round MSE to two decimal places
 
     def _print_tree_structure(self, node, depth=0):
         if isinstance(node, dict):
